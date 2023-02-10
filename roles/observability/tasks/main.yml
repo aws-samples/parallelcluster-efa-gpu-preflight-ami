@@ -1,0 +1,25 @@
+---
+- name: Python docker client for ansible docker plugin.
+  ansible.builtin.pip:
+    executable: pip3
+    name: docker==5.0.3
+
+- name: Install python requests for ansible to install docker plugin.
+  ansible.builtin.pip:
+    executable: pip3
+    name: requests
+
+
+- name: "GPU monitoring - dcgm"
+  docker_container:
+    name: dcgm-exporter
+    image: nvcr.io/nvidia/k8s/dcgm-exporter:{{ dcgm_container_tag }}
+    detach: yes
+    restart_policy: unless-stopped
+    network_mode: host
+    runtime: nvidia
+    capabilities:
+      - SYS_ADMIN
+    env:
+      NVIDIA_VISIBLE_DEVICES: all
+      DCGM_EXPORTER_LISTEN: ":9400"

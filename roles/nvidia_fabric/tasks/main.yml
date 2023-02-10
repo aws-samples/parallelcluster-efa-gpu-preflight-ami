@@ -1,0 +1,31 @@
+---
+- name: "Download NVidia fabric manager"
+  ansible.builtin.get_url:
+    url: "https://developer.download.nvidia.com/compute/nvidia-driver/redist/fabricmanager/linux-x86_64/fabricmanager-linux-x86_64-{{ nvidia_driver_version }}-archive.tar.xz"
+    dest: "/tmp/nvidia-fabricmanager.tar.xz"
+    mode: "0644"
+
+- name: "Extract NVidia fabric manager"
+  ansible.builtin.unarchive:
+    src: "/tmp/nvidia-fabricmanager.tar.xz"
+    dest: "/usr/"
+    remote_src: true
+    extra_opts:
+      - --strip-components=1
+      - --exclude
+      - LICENSE
+
+- name: "Link fabric manager service file"
+  copy:
+    remote_src: true
+    src: "/usr/systemd/nvidia-fabricmanager.service"
+    dest: "/usr/lib/systemd/system/nvidia-fabricmanager.service"
+
+- name: "Enable fabric manager"
+  ansible.builtin.systemd:
+    name: nvidia-fabricmanager
+    daemon-reload: true
+    enabled: true
+  notify: system-reboot
+- name: "Flush handlers"
+  meta: flush_handlers

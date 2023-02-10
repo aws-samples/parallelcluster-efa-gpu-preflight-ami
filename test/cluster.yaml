@@ -1,0 +1,62 @@
+Image:
+  CustomAmi: ami-1
+  Os: alinux2
+HeadNode:
+  InstanceType: m5.8xlarge
+  Networking:
+    SubnetId: subnet-1
+  Ssh:
+    KeyName: lipovsek
+  LocalStorage:
+    RootVolume:
+      Size: 100
+      DeleteOnTermination: true
+Scheduling:
+  Scheduler: slurm
+  SlurmSettings:
+    ScaledownIdletime: -1
+  SlurmQueues:
+    - Name: compute-gpu
+      CapacityType: ONDEMAND
+      Networking:
+        SubnetIds:
+          - subnet-1
+        PlacementGroup:
+          Enabled: true
+      ComputeSettings:
+        LocalStorage:
+          EphemeralVolume:
+            MountDir: /local_scratch
+          RootVolume:
+            Size: 200
+      ComputeResources:
+        - Name: gpu
+          InstanceType: p4de.24xlarge
+          MinCount: 4
+          MaxCount: 4
+          Efa:
+            Enabled: true
+      Image:
+        CustomAmi: ami-1
+SharedStorage:
+  - MountDir: /fsx
+    Name: fsx
+    StorageType: FsxLustre
+    FsxLustreSettings:
+      StorageCapacity: 4800
+      DeploymentType: "SCRATCH_2"
+  - Name: SharedEBS
+    StorageType: Ebs
+    MountDir: /apps
+    EbsSettings:
+      VolumeType: gp3
+      Size: 200
+      Throughput: 300
+      Iops: 6000
+Monitoring:
+  Logs:
+    CloudWatch:
+      Enabled: true
+  Dashboards:
+    CloudWatch:
+      Enabled: false

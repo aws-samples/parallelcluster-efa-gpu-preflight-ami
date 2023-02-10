@@ -1,0 +1,55 @@
+---
+- name: "Install NVidia dependencies"
+  ansible.builtin.yum:
+    name:
+      - gcc10
+      - kernel-devel
+      - kernel-headers
+      - dkms
+    state: present
+
+- name: blacklist nouveau driver
+  copy: dest=/etc/modprobe.d/blacklist-nouveau.conf content='blacklist nouveau' force=yes
+
+- name: blacklist lmb-nouveau driver
+  copy: dest=/etc/modprobe.d/blacklist-nouveau.conf content='blacklist lbm-nouveau' force=yes
+
+- name: blacklist nouveau driver
+  copy: dest=/etc/modprobe.d/blacklist-nouveau.conf content='alias nouveau off' force=yes
+
+- name: blacklist lmb-nouveau driver
+  copy: dest=/etc/modprobe.d/blacklist-nouveau.conf content='alias lmb-nouveau off' force=yes
+  notify: system-reboot
+
+- name: "Flush handlers (force yum clean)"
+  meta: flush_handlers
+
+- name: "Download the NVidia Installer"
+  ansible.builtin.get_url:
+    url: "https://us.download.nvidia.com/tesla/{{ nvidia_driver_version }}/NVIDIA-Linux-x86_64-{{ nvidia_driver_version }}.run"
+    dest: "/tmp/nvidia-installer.run"
+    mode: '0755'
+  
+- name: "Install NVidia drivers"
+  ansible.builtin.shell: "sudo CC=gcc10-cc sh /tmp/nvidia-installer.run -q -a --ui=none"
+#   register: output
+# - debug: msg="{{ output.stdout_lines }}"
+# - debug: msg="{{ output.stderr_lines }}"
+
+# TODO move to ansible for once tested
+- name: "Boost GPU clocks"
+  ansible.builtin.shell: |
+    sudo mkdir -p /opt/aws
+    wget -O /tmp/aws-gpu-boost-clock.sh 'https://github.com/aws-samples/aws-efa-nccl-baseami-pipeline/raw/master/nvidia-efa-ami_base/boost/aws-gpu-boost-clock.sh'
+    wget -O /tmp/aws-gpu-boost-clock.service 'https://github.com/aws-samples/aws-efa-nccl-baseami-pipeline/raw/master/nvidia-efa-ami_base/boost/aws-gpu-boost-clock.service'
+    sudo mv /tmp/aws-gpu-boost-clock.sh /opt/aws/ && sudo chmod +x /opt/aws/aws-gpu-boost-clock.sh
+    sudo mv /tmp/aws-gpu-boost-clock.service /lib/systemd/system
+    sudo systemctl enable aws-gpu-boost-clock.service && sudo systemctl start aws-gpu-boost-clock.service
+
+- name: "Flush handlers"
+  meta: flush_handlers
+- name: "Persistence mode"
+  ansible.builtin.shell: "sudo nvidia-persistenced --persistence-mode"
+  notify: system-reboot
+- name: "Flush handlers"
+  meta: flush_handlers
