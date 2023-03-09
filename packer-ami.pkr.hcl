@@ -23,7 +23,7 @@ variable "ami_version" {
 
 variable "parallel_cluster_version" {
   type    = string
-  default = "3.3.0"
+  default = "3.5.0"
 }
 
 variable "aws_region" {

@@ -4,6 +4,7 @@ Run `make ami_gpu` or `make ami_cpu` to build AMI for GPU with EFA and CPU suppo
 * Review `packer-ami.pkr.hcl` for all available variables.
 * We are using shared filesystem (`/fsx`) for container cache, set this accordingly to your cluster in `roles/nvidia_enroot_pyxis/templates/enroot.conf` variable `ENROOT_CACHE_PATH`.
 * Review variables (dependency versions) in `./roles/*/defaults/main.yml` according to [Ansible directory structure](https://docs.ansible.com/ansible/latest/tips_tricks/sample_setup.html).
+* Optionally, to upgrade the PCluster version where the resulted AMI must be used, open `packer-ami.pkr.hcl` and edit variable `parallel_cluster_version`.
 
 
 # Preflight

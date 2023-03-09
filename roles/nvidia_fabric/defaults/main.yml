@@ -3,4 +3,4 @@ dependencies:
   - role: nvidia_driver
   - role: nvidia_cuda
 
-nvidia_driver_version: "510.47.03" # TODO: duplicated with nvidia_driver
+nvidia_driver_version: "525.60.13" # TODO: duplicated with nvidia_driver
