@@ -10,6 +10,13 @@ Run `make ami_gpu` or `make ami_cpu` to build AMI for GPU with EFA and CPU suppo
 ### 1.1. Notes
 
 * Review `packer-ami.pkr.hcl` for all available variables.
+
+  In particular, the EBS configuration affects both the AMI build time *AND* the EBS cost when you launch EC2 instances from the resulted AMI.
+
+  * The EC2 instances must have at least the same `volume_size` in the `.hcl` file. The `.hcl` defaults to 100GB, which you may reduce because the actual space used is 17GB for CPU AMI, and 25GB for GPU AMI.
+
+  * The EC2 instances will default to the `throughput` and `iops` in the `.hcl` file, but they can be changed before or after EC2 launch. Do note that lower values increases the AMI build time.
+
 * We are using shared filesystem (`/fsx`) for container cache, set this accordingly to your cluster in `roles/nvidia_enroot_pyxis/templates/enroot.conf` variable `ENROOT_CACHE_PATH`.
 * Review variables (dependency versions) in `./roles/*/defaults/main.yml` according to [Ansible directory structure](https://docs.ansible.com/ansible/latest/tips_tricks/sample_setup.html).
 * Optionally, to upgrade the PCluster version where the resulted AMI must be used, open `packer-ami.pkr.hcl` and edit variable `parallel_cluster_version`.
@@ -91,6 +98,9 @@ Build 'amazon-ebs.aws-pcluster-ami' finished after 10 minutes 17 seconds.
 us-east-1: ami-04739f364ba5789ba
 
       619.46 real        18.52 user        10.58 sys
+# Above is with default ebs in .hcl: (100GB, 10000 IOPS, 1000 MB/s)
+#
+# With EBS=(35GB, 1000 IOPS, 125 MB/s) => 15 minutes 39 seconds.
 ```
 
 ```console
@@ -105,4 +115,7 @@ Build 'amazon-ebs.aws-pcluster-ami' finished after 30 minutes 27 seconds.
 us-east-1: ami-007662d3d06398c32
 
      1829.13 real        79.76 user        47.00 sys
+# Above is with default EBS in .hcl: (100GB, 10000 IOPS, 1000 MB/s)
+#
+# With EBS=(35GB, 1000 IOPS, 125 MB/s) => 58 minutes 1 second.
 ```

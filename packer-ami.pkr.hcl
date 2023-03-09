@@ -77,11 +77,19 @@ source "amazon-ebs" "aws-pcluster-ami" {
   ssh_username  = "ec2-user"
   launch_block_device_mappings {
     device_name           = "/dev/xvda"
+    volume_type           = "gp3"
+    delete_on_termination = true
+
+    # Frugal setting: smaller AMI, iops, and throughput, but longer build time.
+    # Note that volume_size >= size_of(base_ami).
+    # [20230309] Space usage: CPU-AMI=17GB, GPU-AMI=25GB.
+    #volume_size           = 35
+    #throughput            = 125
+    #iops                  = 3000
+
     volume_size           = 100
     throughput            = 1000
     iops                  = 10000
-    volume_type           = "gp3"
-    delete_on_termination = true
   }
   tags = {
     "OS" =  "Amazon Linux 2",
