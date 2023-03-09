@@ -8,5 +8,3 @@
 - name: yum clean metadata
   listen: yum-clean-metadata
   command: yum clean metadata
-  args:
-    warn: no

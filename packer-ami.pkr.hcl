@@ -31,6 +31,11 @@ variable "aws_region" {
   default = "us-east-1"
 }
 
+variable "aws_subnet" {
+  type    = string
+  default = "subnet-a2b278fd"
+}
+
 variable "instance_type" {
   type    = string
   default = "g4dn.12xlarge"
@@ -58,10 +63,11 @@ source "amazon-ebs" "aws-pcluster-ami" {
   ami_name      = "${var.ami_name}-${var.ami_version}-${local.timestamp}"
   instance_type = "${var.instance_type}"
   region        = "${var.aws_region}"
+  subnet_id     = "${var.aws_subnet}"
   source_ami_filter {
     filters = {
       virtualization-type = "hvm"
-      name = "aws-parallelcluster-${var.parallel_cluster_version}-amzn2-*"
+      name = "aws-parallelcluster-${var.parallel_cluster_version}-amzn2-hvm-*"
       architecture= "x86_64"
       root-device-type = "ebs"
     }
@@ -71,7 +77,7 @@ source "amazon-ebs" "aws-pcluster-ami" {
   ssh_username  = "ec2-user"
   launch_block_device_mappings {
     device_name           = "/dev/xvda"
-    volume_size           = 100 
+    volume_size           = 100
     throughput            = 1000
     iops                  = 10000
     volume_type           = "gp3"
@@ -92,5 +98,10 @@ build {
     user                = "ec2-user"
     inventory_directory = "${var.inventory_directory}"
     playbook_file       = "${var.playbook_file}"
+
+    # https://github.com/hashicorp/packer-plugin-ansible/issues/69#issuecomment-1342585096
+    #ansible_ssh_extra_args  = ["-oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedKeyTypes=+ssh-rsa -o IdentitiesOnly=yes -oServerAliveInterval=60 -oServerAliveCountMax=120 -oTCPKeepAlive=yes"]
+    ansible_ssh_extra_args  = ["-oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedKeyTypes=+ssh-rsa -o IdentitiesOnly=yes"]
+    extra_arguments         = [ "--scp-extra-args", "'-O'" ]
   }
 }
