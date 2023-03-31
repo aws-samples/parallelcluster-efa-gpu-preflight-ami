@@ -1,0 +1,30 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: jax-rdma
+  region: us-east-1
+  version: "1.25"
+iam:
+  withOIDC: true
+availabilityZones: ["us-east-1a", "us-east-1c"]
+nodeGroups:
+  - name: core
+    instanceType: m5.8xlarge
+    desiredCapacity: 2
+  - name: gpu-compute
+    # taints:
+    #   - key: smml.io/gpu
+    #     value: "true"
+    #     effect: NoSchedule
+    ssh:
+      publicKeyName: YOUR_KEY # set your SSH key
+    instanceType: p4de.24xlarge
+    desiredCapacity: 16
+    minSize: 16
+    maxSize: 16
+    privateNetworking: true
+    availabilityZones: ["us-east-1c"]
+    efaEnabled: true
+    capacityReservation:
+      capacityReservationTarget:
+        capacityReservationID: "cr-123" # SET THIS!
