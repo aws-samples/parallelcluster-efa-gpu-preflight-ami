@@ -57,13 +57,14 @@ docker rmi gpu_burn
 ###########
 # EFA check
 echo "Starting EFA tests"
-
-if [ $(fi_info -p efa -t FI_EP_RDM | grep 'provider: efa' | wc -l) -eq 0 ]; then
+NUMBER_OF_EFA_DEVICES=$(fi_info -p efa -t FI_EP_RDM | grep 'provider: efa' | wc -l)
+if [ ${NUMBER_OF_EFA_DEVICES} -eq 0 ]; then
         echo "EFA or it's dependencies (libfabric) not available"
+        exit 1
 fi
 
 fi_info -p efa -t FI_EP_RDM
-echo "Number of EFA: $(fi_info -p efa -t FI_EP_RDM | grep 'provider: efa' | wc -l)"
+echo "Number of EFA: ${NUMBER_OF_EFA_DEVICES}"
 export FI_PROVIDER=efa
 export NCCL_DEBUG=info
 NCCL_LOG=nccl_test.log
