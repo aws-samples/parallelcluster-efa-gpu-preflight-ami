@@ -8,6 +8,9 @@ Run bash script `preflight.sh` inside this (`./preflight`) directory (it depends
 # Passive healthchecks
 Both [cloudwatch GPU monitoring](https://aws.amazon.com/blogs/compute/capturing-gpu-telemetry-on-the-amazon-ec2-accelerated-computing-instances/) and [Prometheus based DCGM exporter](https://github.com/NVIDIA/dcgm-exporter) container [X ID error metrics](https://docs.nvidia.com/deploy/xid-errors/index.html) to detect any underlying issues with GPU. Users can further inspect `dmesg` for more information.
 
+# Improve torchrun crash handling
+See these [3 suggestions](https://github.com/pytorch/pytorch/issues/76287#issuecomment-1117939347) - it should be added to [newer versions](https://github.com/pytorch/pytorch/issues/76287#issuecomment-1505908562).
+
 # Preflight future roadmap
 * persist results in JSON or other structure file format
 
