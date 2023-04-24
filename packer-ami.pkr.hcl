@@ -33,7 +33,7 @@ variable "aws_region" {
 
 variable "aws_subnet" {
   type    = string
-  default = "subnet-a2b278fd"
+  default = "subnet-ada10af7"
 }
 
 variable "instance_type" {
@@ -110,6 +110,8 @@ build {
     # https://github.com/hashicorp/packer-plugin-ansible/issues/69#issuecomment-1342585096
     #ansible_ssh_extra_args  = ["-oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedKeyTypes=+ssh-rsa -o IdentitiesOnly=yes -oServerAliveInterval=60 -oServerAliveCountMax=120 -oTCPKeepAlive=yes"]
     ansible_ssh_extra_args  = ["-oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedKeyTypes=+ssh-rsa -o IdentitiesOnly=yes"]
+
+    # Next is needed on OSX Monterey, but must be removed for alinux2 (or whenever scp doesn't support -O flag
     extra_arguments         = [ "--scp-extra-args", "'-O'" ]
   }
 }
