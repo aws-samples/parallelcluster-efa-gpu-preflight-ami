@@ -20,7 +20,7 @@ def demo_basic():
         dist.init_process_group("nccl")
         rank = dist.get_rank()
         hostname = socket.gethostname()
-        print(f"Start running basic DDP example on rank {hostname}:{rank}.")
+        print(f"Start running basic DDP example on node {hostname} and rank {rank}.")
         device_id = f"cuda:{rank % torch.cuda.device_count()}"
         print("Distributed training variables:")
         for env_key in ("LOCAL_RANK", "RANK", "GROUP_RANK", "LOCAL_WORLD_SIZE", "WORLD_SIZE"):
