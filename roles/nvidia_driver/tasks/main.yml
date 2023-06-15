@@ -8,18 +8,10 @@
       - dkms
     state: present
 
-- name: blacklist nouveau driver
-  copy: dest=/etc/modprobe.d/blacklist-nouveau.conf content='blacklist nouveau' force=yes
-
-- name: blacklist lmb-nouveau driver
-  copy: dest=/etc/modprobe.d/blacklist-nouveau.conf content='blacklist lbm-nouveau' force=yes
-
-- name: blacklist nouveau driver
-  copy: dest=/etc/modprobe.d/blacklist-nouveau.conf content='alias nouveau off' force=yes
-
-- name: blacklist lmb-nouveau driver
-  copy: dest=/etc/modprobe.d/blacklist-nouveau.conf content='alias lmb-nouveau off' force=yes
-  notify: system-reboot
+- name: blacklist nouveau
+  kernel_blacklist:
+    name: nouveau
+    state: present
 
 - name: "Flush handlers (force yum clean)"
   meta: flush_handlers
