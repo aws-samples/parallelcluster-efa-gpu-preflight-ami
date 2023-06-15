@@ -37,13 +37,49 @@
     dest: "/tmp/nvidia-installer.run"
     mode: '0755'
   
-- name: "Install NVidia drivers"
+- name: "Install Nvidia drivers"
   ansible.builtin.shell: "sudo CC=gcc10-cc sh /tmp/nvidia-installer.run -q -a --ui=none"
 
 - name: enable persistenced
   systemd:
     name: nvidia-persistenced
     enabled: yes
+
+- name: "Flush handlers"
+  meta: flush_handlers
+
+- name: "Install Nvidia Fabric Manager"
+  block:
+    - name: "Download fabric manager"
+      ansible.builtin.get_url:
+        url: "https://developer.download.nvidia.com/compute/nvidia-driver/redist/fabricmanager/linux-x86_64/fabricmanager-linux-x86_64-{{ nvidia_driver_version }}-archive.tar.xz"
+        dest: "/tmp/nvidia-fabricmanager.tar.xz"
+        mode: "0644"
+
+    - name: "Extract fabric manager"
+      ansible.builtin.unarchive:
+        src: "/tmp/nvidia-fabricmanager.tar.xz"
+        dest: "/usr/"
+        remote_src: true
+        extra_opts:
+          - --strip-components=1
+          - --exclude
+          - LICENSE
+
+    - name: "Link fabric manager service file"
+      copy:
+        remote_src: true
+        src: "/usr/systemd/nvidia-fabricmanager.service"
+        dest: "/usr/lib/systemd/system/nvidia-fabricmanager.service"
+
+    - name: "Enable fabric manager"
+      ansible.builtin.systemd:
+        name: nvidia-fabricmanager
+        daemon-reload: true
+        enabled: true
+      notify: system-reboot
+
+  when: install_nvidia_fabric_manager
 
 - name: "Flush handlers"
   meta: flush_handlers
