@@ -21,10 +21,3 @@
       export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64
       export PATH=$PATH:/usr/local/cuda/bin
       export CPATH=${CPATH}:/usr/local/cuda/targets/x86_64-linux/include
-
-# - name: clock
-#   ansible.builtin.blockinfile:
-#     path: /etc/profile.d/cuda-tune.sh
-#     create: yes
-#     block: |
-#       nvidia-smi -pm 1
