@@ -48,8 +48,12 @@
 
 - name: "Flush handlers"
   meta: flush_handlers
-- name: "Persistence mode"
-  ansible.builtin.shell: "sudo nvidia-persistenced --persistence-mode"
-  notify: system-reboot
+
+- name: enable persistenced
+  systemd:
+    name: nvidia-persistenced
+    enabled: yes
+  when: nvidia_driver_package_state != 'absent'
+
 - name: "Flush handlers"
   meta: flush_handlers
