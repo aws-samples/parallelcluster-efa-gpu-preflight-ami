@@ -91,7 +91,7 @@ build {
   provisioner "shell" {
     inline = ["sudo yum remove -y dpkg",
               "sudo yum install -y python3-pip",
-              "sudo python3 -m pip install ansible"]
+              "sudo python3 -m pip install ansible==4.10.0"]
   }
   provisioner "ansible-local" {
     playbook_file   = "${var.playbook_file}"
