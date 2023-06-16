@@ -10,6 +10,6 @@
 - name: "Add remote user to docker group for non-privileged users to run docker"
   user:
     name: "{{ username }}"
-    group: "docker"
+    groups: "docker"
     append: yes
   notify: restart-docker
