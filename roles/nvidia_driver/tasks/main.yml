@@ -39,10 +39,18 @@
 - name: "Install Nvidia drivers"
   ansible.builtin.shell: "sudo CC=gcc10-cc sh /tmp/nvidia-installer.run -q -a --ui=none"
 
-- name: enable persistenced
-  systemd:
-    name: nvidia-persistenced
-    enabled: yes
+- name: "Setup persistence mode "
+  block:
+  - name: Configure persistenced service
+    copy:
+      src: "nvidia-persistenced-override.service"
+      dest: "/usr/lib/systemd/system/nvidia-persistenced-override.service"
+
+  - name: Enable persistenced
+    systemd:
+      name: nvidia-persistenced-override
+      daemon-reload: true
+      enabled: true
 
 - name: "Install Nvidia Fabric Manager"
   block:
@@ -69,7 +77,7 @@
       dest: "/usr/lib/systemd/system/nvidia-fabricmanager.service"
 
   - name: "Enable fabric manager"
-    ansible.builtin.systemd:
+    systemd:
       name: nvidia-fabricmanager
       daemon-reload: true
       enabled: true
