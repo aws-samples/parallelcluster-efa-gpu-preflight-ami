@@ -88,9 +88,26 @@ source "amazon-ebs" "aws-pcluster-ami" {
 build {
   sources = ["source.amazon-ebs.aws-pcluster-ami"]
 
-  provisioner "ansible" {
-    user                = "ec2-user"
-    inventory_directory = "${var.inventory_directory}"
-    playbook_file       = "${var.playbook_file}"
+  provisioner "shell" {
+    inline = ["sudo yum remove -y dpkg",
+              "sudo yum install -y python3-pip",
+              "sudo python3 -m pip install ansible"]
+  }
+  provisioner "ansible-local" {
+    playbook_file   = "${var.playbook_file}"
+    role_paths      = ["./roles/base",
+                       "./roles/packages",
+                       "./roles/aws_cliv2",
+                       "./roles/docker",
+                       "./roles/aws_efa",
+                       "./roles/nvidia_driver",
+                       "./roles/nvidia_docker",
+                       "./roles/nvidia_cuda",
+                       "./roles/nvidia_gdrcopy",
+                       "./roles/nvidia_nccl",
+                       "./roles/nvidia_enroot_pyxis",
+                       "./roles/aws_efa_ofi",
+                       "./roles/aws_lustre",
+                       "./roles/observability"]
   }
 }
