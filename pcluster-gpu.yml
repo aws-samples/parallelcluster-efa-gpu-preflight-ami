@@ -14,7 +14,6 @@
     - nvidia_driver
     - nvidia_docker
     - nvidia_cuda
-    - nvidia_fabric
     - nvidia_gdrcopy
     - nvidia_nccl
     - nvidia_enroot_pyxis

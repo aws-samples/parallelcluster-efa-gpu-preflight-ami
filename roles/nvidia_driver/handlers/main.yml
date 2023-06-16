@@ -4,3 +4,8 @@
   command: yum clean metadata
   args:
     warn: no
+
+- name: "Reboot system"
+  listen: system-reboot
+  ansible.builtin.reboot:
+  when: allow_reboot
