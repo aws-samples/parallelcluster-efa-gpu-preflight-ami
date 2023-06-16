@@ -13,6 +13,4 @@
     name: "{{ username }}"
     group: "docker"
     append: yes
-
-- name: "Flush handlers"
-  meta: flush_handlers
+  notify: restart-docker

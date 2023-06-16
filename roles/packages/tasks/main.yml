@@ -7,9 +7,6 @@
   when: packages_update
   notify: system-reboot
 
-- name: "Force reboot on kernel update"
-  meta: flush_handlers
-
 - name: "Update all packages"
   ansible.builtin.yum:
     name: '*'

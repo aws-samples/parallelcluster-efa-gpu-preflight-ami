@@ -12,7 +12,6 @@
       - nvidia-docker2
     state: present
     update_cache: yes
-  notify: restart docker
-
-- name: "Flush handlers"
-  meta: flush_handlers
+  notify:
+    - restart-docker
+    - yum-clean-metadata
