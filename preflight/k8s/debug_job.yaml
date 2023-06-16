@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gpu-test
+  namespace: test
+spec:
+  backoffLimit: 4
+  template:
+    metadata:
+      labels:
+        test: gpu
+    spec:
+      restartPolicy: Never
+      tolerations:
+      - key: smml.io/gpu
+        operator: Exists
+        effect: NoSchedule
+      containers:
+      - name: efa-test-pod
+        image: public.ecr.aws/w6p6i9i7/aws-efa-nccl-rdma:22.03-pt-py3
+        imagePullPolicy: Always
+        command: ["/bin/sh", "-c"]
+        args: ["fi_info -p efa -t FI_EP_RDM && nvidia-smi && NCCL_DEBUG=INFO /opt/nccl-tests/build/all_reduce_perf -b 8 -e 9G -f 2 -g 8 -c 1 -n 100"] #["sleep", "infinity"]
+        securityContext:
+          privileged: true
+        resources:
+          requests:
+            vpc.amazonaws.com/efa: 4
+            hugepages-2Mi: 20000Mi
+            memory: 1070000Mi
+            nvidia.com/gpu: 8
+          limits:
+            vpc.amazonaws.com/efa: 4
+            hugepages-2Mi: 20000Mi        
+            memory: 1070000Mi
+            nvidia.com/gpu: 8
+        volumeMounts:
+        - name: shm
+          mountPath: /dev/shm
+      volumes:
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 10Gi

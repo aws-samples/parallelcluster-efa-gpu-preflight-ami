@@ -1,0 +1,14 @@
+# helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+# helm repo update
+# helm install prometheus prometheus-community/kube-prometheus-stack --version 38.0.2 -f node_exporter.yaml -n test --create-namespace
+# kubectl port-forward prometheus-prometheus-kube-prometheus-prometheus-0 9090 -n test
+# kubectl port-forward prometheus-grafana-bd6f4476c-xqrb5 3000 -n test 
+prometheus-node-exporter:
+  image:
+    repository: 123.dkr.ecr.us-east-1.amazonaws.com/lipovsek # set to your image
+    tag: efa-exporter
+    pullPolicy: IfNotPresent
+prometheus:
+  prometheusSpec:
+    podMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorSelectorNilUsesHelmValues: false
