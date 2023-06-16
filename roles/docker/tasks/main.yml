@@ -6,7 +6,6 @@
   ansible.builtin.systemd:
     name: docker.service
     enabled: true
-  notify: restart docker
 
 - name: "Add remote user to docker group for non-privileged users to run docker"
   user:

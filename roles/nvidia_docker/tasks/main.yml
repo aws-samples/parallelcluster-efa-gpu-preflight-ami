@@ -5,7 +5,7 @@
     creates: /etc/yum.repos.d/nvidia-docker.repo
   notify: yum-clean-metadata
 
-- name: install packages
+- name: "Intall Nvidia docker packages"
   yum:
     name:
       - nvidia-container-toolkit
