@@ -29,3 +29,7 @@
     sudo mkdir -p /opt/slurm/etc/plugstack.conf.d
     echo -e 'include /opt/slurm/etc/plugstack.conf.d/*' | sudo tee /opt/slurm/etc/plugstack.conf
     sudo ln -fs /usr/local/share/pyxis/pyxis.conf /opt/slurm/etc/plugstack.conf.d/pyxis.conf
+
+- name: yum clean metadata
+  ansible.builtin.command:
+    cmd: yum clean metadata

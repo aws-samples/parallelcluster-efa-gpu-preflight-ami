@@ -14,6 +14,10 @@
       - subunit-devel
     state: present
 
+- name: yum clean metadata
+  ansible.builtin.command:
+    cmd: yum clean metadata
+
 - name: Clone Nvidia GDR Copy repository
   ansible.builtin.git:
     repo: https://github.com/NVIDIA/gdrcopy.git

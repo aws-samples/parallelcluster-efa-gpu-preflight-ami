@@ -3,7 +3,6 @@
   ansible.builtin.shell: yum-config-manager --add-repo https://nvidia.github.io/nvidia-docker/amzn2/nvidia-docker.repo
   args:
     creates: /etc/yum.repos.d/nvidia-docker.repo
-  notify: yum-clean-metadata
 
 - name: "Intall Nvidia docker packages"
   yum:
@@ -12,6 +11,12 @@
       - nvidia-docker2
     state: present
     update_cache: yes
-  notify:
-    - restart-docker
-    - yum-clean-metadata
+
+- name: "(Re)start docker"
+  ansible.builtin.systemd:
+    name: docker.service
+    state: restarted
+
+- name: yum clean metadata
+  ansible.builtin.command:
+    cmd: yum clean metadata

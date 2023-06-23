@@ -6,6 +6,9 @@
       - make
     state: present
 
+- name: yum clean metadata
+  ansible.builtin.command:
+    cmd: yum clean metadata
 
 - name: Clone Nvidia NCCL git repository
   ansible.builtin.git:

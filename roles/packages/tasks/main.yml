@@ -5,7 +5,10 @@
     state: latest
     lock_timeout: 180
   when: packages_update
-  notify: system-reboot
+
+- name: "Reboot system"
+  reboot:
+  when: allow_reboot
 
 - name: "Update all packages"
   ansible.builtin.yum:

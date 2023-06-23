@@ -14,7 +14,10 @@
         - kernel-devel
         - kernel-headers
       state: latest
-    notify: system-reboot
+
+- name: "Reboot system"
+  reboot:
+  when: allow_reboot
 
 - name: "Install additional dependencies"
   ansible.builtin.yum:
@@ -26,7 +29,7 @@
     state: present
 
 - name: "Blacklist nouveau"
-  kernel_blacklist:
+  community.general.kernel_blacklist:
     name: nouveau
     state: present
 
@@ -53,6 +56,7 @@
       enabled: true
 
 - name: "Install Nvidia Fabric Manager"
+  when: install_nvidia_fabric_manager
   block:
   - name: "Download fabric manager"
     ansible.builtin.get_url:
@@ -81,8 +85,8 @@
       name: nvidia-fabricmanager
       daemon-reload: true
       enabled: true
-    notify:
-      - yum-clean-metadata
-      - system-reboot
 
-  when: install_nvidia_fabric_manager
+  - name: yum clean metadata
+    ansible.builtin.command:
+      cmd: yum clean metadata
+
