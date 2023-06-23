@@ -33,7 +33,7 @@ variable "aws_region" {
 
 variable "instance_type" {
   type    = string
-  default = "g4dn.12xlarge"
+  default = "g4dn.16xlarge"
 }
 
 variable "inventory_directory" {
@@ -88,26 +88,10 @@ source "amazon-ebs" "aws-pcluster-ami" {
 build {
   sources = ["source.amazon-ebs.aws-pcluster-ami"]
 
-  provisioner "shell" {
-    inline = ["sudo yum remove -y dpkg",
-              "sudo yum install -y python3-pip",
-              "sudo python3 -m pip install ansible==4.10.0"]
-  }
-  provisioner "ansible-local" {
+  provisioner "ansible" {
+    user            = "ec2-user"
+    ansible_env_vars = ["ANSIBLE_SCP_EXTRA_ARGS='-O'"]
     playbook_file   = "${var.playbook_file}"
-    role_paths      = ["./roles/base",
-                       "./roles/packages",
-                       "./roles/aws_cliv2",
-                       "./roles/docker",
-                       "./roles/aws_efa",
-                       "./roles/nvidia_driver",
-                       "./roles/nvidia_docker",
-                       "./roles/nvidia_cuda",
-                       "./roles/nvidia_gdrcopy",
-                       "./roles/nvidia_nccl",
-                       "./roles/nvidia_enroot_pyxis",
-                       "./roles/aws_efa_ofi",
-                       "./roles/aws_lustre",
-                       "./roles/observability"]
+    inventory_directory = "${var.inventory_directory}"
   }
 }

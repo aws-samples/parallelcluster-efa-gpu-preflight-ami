@@ -1,7 +1,6 @@
 ---
 - name: "Configure Parallel cluster AMI"
-  hosts: localhost
-  connection: local
+  hosts: default
   become: true
   gather_facts: true
   gather_subset: ['kernel']
