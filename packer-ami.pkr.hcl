@@ -51,6 +51,12 @@ variable "ssh_username" {
   default = "ec2-user"
 }
 
+variable "aws_region" {
+  type.   = string
+  default = env("AWS_DEFAULT_REGION")
+}
+
+
 # "timestamp" template function replacement
 locals { timestamp = regex_replace(timestamp(), "[- TZ:]", "") }
 
