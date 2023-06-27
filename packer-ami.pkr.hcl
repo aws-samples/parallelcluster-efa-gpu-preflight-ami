@@ -23,7 +23,12 @@ variable "ami_version" {
 
 variable "parallel_cluster_version" {
   type    = string
-  default = "3.3.0"
+  default = "3.6.0"
+}
+
+variable "eks_version" {
+  type    = string
+  default = "1.24"
 }
 
 variable "aws_region" {
@@ -51,29 +56,58 @@ variable "ssh_username" {
   default = "ec2-user"
 }
 
-variable "aws_region" {
-  type.   = string
-  default = env("AWS_DEFAULT_REGION")
-}
-
-
 # "timestamp" template function replacement
 locals { timestamp = regex_replace(timestamp(), "[- TZ:]", "") }
 
+data "amazon-ami" "pcluster-al2" {
+  filters = {
+    virtualization-type = "hvm"
+    name = "aws-parallelcluster-${var.parallel_cluster_version}-amzn2-*"
+    architecture= "x86_64"
+    root-device-type = "ebs"
+  }
+  most_recent = true
+  owners      = ["amazon"]
+}
+
+data "amazon-ami" "base-al2" {
+  filters = {
+    virtualization-type = "hvm"
+    name = "amzn2-ami-kernel-5.10-hvm-*"
+    architecture= "x86_64"
+    root-device-type = "ebs"
+  }
+  most_recent = true
+  owners      = ["amazon"]
+}
+
+data "amazon-ami" "eks-al2" {
+  filters = {
+    virtualization-type = "hvm"
+    name = "amazon-eks-node-${var.eks_version}-*"
+    architecture= "x86_64"
+    root-device-type = "ebs"
+  }
+  most_recent = true
+  owners      = ["amazon"]
+}
+
+data "amazon-ami" "dlami-al2" {
+  filters = {
+    virtualization-type = "hvm"
+    name = "Deep Learning AMI GPU PyTorch 2.0.1 (Amazon Linux 2) *"
+    architecture= "x86_64"
+    root-device-type = "ebs"
+  }
+  most_recent = true
+  owners      = ["amazon"]
+}
+
 source "amazon-ebs" "aws-pcluster-ami" {
-  ami_name      = "${var.ami_name}-${var.ami_version}-${local.timestamp}"
+  ami_name      = "${var.ami_name}-pcluster-${var.ami_version}-${local.timestamp}"
   instance_type = "${var.instance_type}"
   region        = "${var.aws_region}"
-  source_ami_filter {
-    filters = {
-      virtualization-type = "hvm"
-      name = "aws-parallelcluster-${var.parallel_cluster_version}-amzn2-*"
-      architecture= "x86_64"
-      root-device-type = "ebs"
-    }
-    most_recent = true
-    owners      = ["amazon"]
-  }
+  source_ami     = data.amazon-ami.pcluster-al2.id
   ssh_username  = "ec2-user"
   launch_block_device_mappings {
     device_name           = "/dev/xvda"
@@ -89,15 +123,136 @@ source "amazon-ebs" "aws-pcluster-ami" {
     "parallelcluster:build_status" = "available"
     "parallelcluster:os" = "alinux2"
   }
+  run_tags = {
+    "Name" = "packer-builder-pcluster-${var.parallel_cluster_version}"
+  }
+}
+
+source "amazon-ebs" "aws-base-ami" {
+  ami_name      = "${var.ami_name}-base-${var.ami_version}-${local.timestamp}"
+  instance_type = "${var.instance_type}"
+  region        = "${var.aws_region}"
+  source_ami     = data.amazon-ami.base-al2.id
+  ssh_username  = "ec2-user"
+  launch_block_device_mappings {
+    device_name           = "/dev/xvda"
+    volume_size           = 100
+    throughput            = 1000
+    iops                  = 10000
+    volume_type           = "gp3"
+    delete_on_termination = true
+  }
+  run_tags = {
+    "Name" = "packer-builder-base-al2"
+  }
+}
+
+source "amazon-ebs" "aws-eks-ami" {
+  ami_name      = "${var.ami_name}-eks-${var.eks_version}-${var.ami_version}-${local.timestamp}"
+  instance_type = "${var.instance_type}"
+  region        = "${var.aws_region}"
+  source_ami     = data.amazon-ami.eks-al2.id
+  ssh_username  = "ec2-user"
+  launch_block_device_mappings {
+    device_name           = "/dev/xvda"
+    volume_size           = 100
+    throughput            = 1000
+    iops                  = 10000
+    volume_type           = "gp3"
+    delete_on_termination = true
+  }
+  run_tags = {
+    "Name" = "packer-builder-eks-al2-${var.eks_version}"
+  }
+}
+
+source "amazon-ebs" "aws-dlami-ami" {
+  ami_name      = "${var.ami_name}-dlami-${var.ami_version}-${local.timestamp}"
+  instance_type = "${var.instance_type}"
+  region        = "${var.aws_region}"
+  source_ami     = data.amazon-ami.dlami-al2.id
+  ssh_username  = "ec2-user"
+  launch_block_device_mappings {
+    device_name           = "/dev/xvda"
+    volume_size           = 100
+    throughput            = 1000
+    iops                  = 10000
+    volume_type           = "gp3"
+    delete_on_termination = true
+  }
+  run_tags = {
+    "Name" = "packer-builder-dlami-al2"
+  }
 }
 
 build {
+  name    = "aws-base"
+  sources = ["source.amazon-ebs.aws-base-ami"]
+
+  provisioner "ansible" {
+    user                = "ec2-user"
+    ansible_env_vars    = ["ANSIBLE_SCP_EXTRA_ARGS='-O'"]
+    playbook_file       = "playbook-pcluster-gpu.yml"
+    inventory_directory = "${var.inventory_directory}"
+  }
+}
+
+build {
+  name    = "aws-pcluster-cpu"
   sources = ["source.amazon-ebs.aws-pcluster-ami"]
 
   provisioner "ansible" {
-    user            = "ec2-user"
-    ansible_env_vars = ["ANSIBLE_SCP_EXTRA_ARGS='-O'"]
-    playbook_file   = "${var.playbook_file}"
+    user                = "ec2-user"
+    ansible_env_vars    = ["ANSIBLE_SCP_EXTRA_ARGS='-O'"]
+    playbook_file       = "playbook-pcluster-cpu.yml"
+    inventory_directory = "${var.inventory_directory}"
+  }
+}
+
+build {
+  name    = "aws-pcluster-gpu"
+  sources = ["source.amazon-ebs.aws-pcluster-ami"]
+
+  provisioner "ansible" {
+    user                = "ec2-user"
+    ansible_env_vars    = ["ANSIBLE_SCP_EXTRA_ARGS='-O'"]
+    playbook_file       = "playbook-pcluster-gpu.yml"
+    inventory_directory = "${var.inventory_directory}"
+  }
+}
+
+build {
+  name    = "aws-eks-gpu"
+  sources = ["source.amazon-ebs.aws-eks-ami"]
+
+  provisioner "ansible" {
+    user                = "ec2-user"
+    ansible_env_vars    = ["ANSIBLE_SCP_EXTRA_ARGS='-O'"]
+    playbook_file       = "playbook-eks-gpu.yml"
+    inventory_directory = "${var.inventory_directory}"
+  }
+}
+
+build {
+  name    = "aws-dlami-gpu"
+  sources = ["source.amazon-ebs.aws-dlami-ami"]
+
+  provisioner "ansible" {
+    user                = "ec2-user"
+    ansible_env_vars    = ["ANSIBLE_SCP_EXTRA_ARGS='-O'"]
+    playbook_file       = "playbook-dlami-gpu.yml"
+    inventory_directory = "${var.inventory_directory}"
+  }
+}
+
+build {
+  name    = "aws-dlami-neuron"
+  sources = ["source.amazon-ebs.aws-dlami-ami"]
+
+  provisioner "ansible" {
+    user                = "ec2-user"
+    ansible_env_vars    = ["ANSIBLE_SCP_EXTRA_ARGS='-O'"]
+    playbook_file       = "playbook-dlami-neuron.yml"
     inventory_directory = "${var.inventory_directory}"
   }
 }
