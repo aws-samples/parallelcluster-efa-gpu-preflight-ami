@@ -4,6 +4,11 @@
   args:
     creates: /etc/yum.repos.d/cuda-rhel7.repo
 
+- name: "Install dependencies for CUDA toolkit"
+  yum:
+    name:
+      - "libglvnd-opengl"
+
 - name: "Install CUDA toolkit"
   yum:
     name:
