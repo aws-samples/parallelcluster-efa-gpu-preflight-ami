@@ -7,7 +7,7 @@ RUN git clone https://github.com/huggingface/transformers.git && \
     mkdir ./bert-qa-squad && \
     python -m pip install -r requirements.txt && \
     python -m pip install datasets huggingface-hub sacrebleu evaluate && \
-    python -m pip install "jax[cuda11_cudnn82]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+    python -m pip install "jax[cuda11_cudnn86]"==0.4.13 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 
 ENV FI_EFA_USE_DEVICE_RDMA=1
 ENV FI_PROVIDER=efa
