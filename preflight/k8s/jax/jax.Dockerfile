@@ -1,4 +1,5 @@
 FROM public.ecr.aws/w6p6i9i7/aws-efa-nccl-rdma:22.03-pt-py3
+RUN python -m pip install "jax[cuda11_cudnn82]"==0.4.7 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 RUN git clone https://github.com/huggingface/transformers.git && \
     cd transformers && \
     git checkout v4.27.3 && \
@@ -6,8 +7,7 @@ RUN git clone https://github.com/huggingface/transformers.git && \
     cd examples/flax/question-answering/ && \
     mkdir ./bert-qa-squad && \
     python -m pip install -r requirements.txt && \
-    python -m pip install datasets huggingface-hub sacrebleu evaluate && \
-    python -m pip install "jax[cuda11_cudnn86]"==0.4.13 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+    python -m pip install datasets huggingface-hub sacrebleu evaluate
 
 ENV FI_EFA_USE_DEVICE_RDMA=1
 ENV FI_PROVIDER=efa
