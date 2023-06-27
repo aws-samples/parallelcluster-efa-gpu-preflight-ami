@@ -84,7 +84,7 @@ data "amazon-ami" "base-al2" {
 data "amazon-ami" "eks-al2" {
   filters = {
     virtualization-type = "hvm"
-    name = "amazon-eks-node-${var.eks_version}-*"
+    name = "amazon-eks-node-${var.eks_version}-v*"
     architecture= "x86_64"
     root-device-type = "ebs"
   }
@@ -186,7 +186,7 @@ source "amazon-ebs" "aws-dlami-ami" {
 }
 
 build {
-  name    = "aws-base"
+  name    = "aws-base-gpu"
   sources = ["source.amazon-ebs.aws-base-ami"]
 
   provisioner "ansible" {

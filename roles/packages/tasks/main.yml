@@ -4,6 +4,8 @@
     name: 'kernel*'
     state: latest
     lock_timeout: 180
+    update_only: yes
+    update_cache: true
   when: packages_update
 
 - name: "Reboot system"
@@ -15,6 +17,7 @@
     name: '*'
     state: latest
     exclude: "{{ packages_update_exclude }}"
+    update_only: yes
     lock_timeout: 180
   when: packages_update
 

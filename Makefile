@@ -17,9 +17,7 @@ ami_dlami_gpu:
 ami_dlami_neuron:
 	packer build -only 'aws-dlami-neuron.*' -var aws_region=${AWS_REGION} -var "ami_version=1" packer-ami.pkr.hcl | tee aws-dlami-neuron_ami.log
 ami_eks_gpu:
-	packer build -only 'aws-eks-gpu.*' -var aws_region=${AWS_REGION} -var "ami_version=1" -var "eks_version=1.14" packer-ami.pkr.hcl | tee aws-eks-gpu_ami.log
-
-
+	packer build -only 'aws-eks-gpu.*' -var aws_region=${AWS_REGION} -var "ami_version=1" -var "eks_version=1.24" packer-ami.pkr.hcl | tee aws-eks-gpu_ami.log
 
 ami_example:
 	cd preflight/example_ami && packer build -color=true -var-file variables.json ami.json | tee log
