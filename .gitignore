@@ -1,7 +1,6 @@
 .env.unversioned
 
-cpu_ami.log
-gpu_ami.log
+*.log
 inventory/packer-provisioner-ansible*
 
 # vscode: retain launch.json for sample invocation
