@@ -2,8 +2,6 @@
 dependencies:
   - role: nvidia_cuda
 
-#nccl_version: v2.12.10-1
-#nccl_repo: NVIDIA
-nccl_version: dynamic-buffer-depth
-nccl_repo: koyongse
+nccl_version: v2.12.10-1
+nccl_repo: NVIDIA
 install_nccl_tests: true

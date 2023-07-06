@@ -20,8 +20,8 @@
 - name: "Get dependencies for Enroot and Pyxis"
   ansible.builtin.shell: |
     sudo yum install -y jq squashfs-tools parallel libnvidia-container-tools pigz squashfuse slurm-devel
-    export arch=$(uname -m) && sudo -E yum install -y https://github.com/NVIDIA/enroot/releases/download/v{{ enroot_version }}/enroot-{{ pyxis_version }}-2.el7.${arch}.rpm
-    export arch=$(uname -m) && sudo -E yum install -y https://github.com/NVIDIA/enroot/releases/download/v{{ pyxis_version }}/enroot+caps-{{ pyxis_version }}-2.el7.${arch}.rpm
+    export arch=$(uname -m) && sudo -E yum install -y https://github.com/NVIDIA/enroot/releases/download/v{{ enroot_version }}/enroot-{{ enroot_version }}-2.el7.${arch}.rpm
+    export arch=$(uname -m) && sudo -E yum install -y https://github.com/NVIDIA/enroot/releases/download/v{{ enroot_version }}/enroot+caps-{{ enroot_version }}-2.el7.${arch}.rpm
     # get overlayfs
     wget http://mirror.centos.org/centos/7/extras/x86_64/Packages/fuse-overlayfs-0.7.2-6.el7_8.x86_64.rpm
     sudo yum localinstall -y fuse-overlayfs-0.7.2-6.el7_8.x86_64.rpm
