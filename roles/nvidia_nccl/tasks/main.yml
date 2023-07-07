@@ -14,7 +14,7 @@
   ansible.builtin.git:
     repo: https://github.com/{{ nccl_repo }}/nccl.git
     dest: /opt/nccl
-    version: '{{ nccl_version }}'
+    version: '{{ nccl_tag }}'
 
 - name: Build NCCL
   ansible.builtin.shell: |

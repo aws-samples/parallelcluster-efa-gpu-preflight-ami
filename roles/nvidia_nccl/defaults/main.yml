@@ -2,6 +2,7 @@
 dependencies:
   - role: nvidia_cuda
 
-nccl_version: v2.12.10-1
+nccl_tag: inc_nsteps
+# nccl_tag: v2.12.10-1
 nccl_repo: NVIDIA
 install_nccl_tests: true
